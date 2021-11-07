@@ -37,6 +37,9 @@ root_dir = relative_to((Path(__file__).parent / "../..").resolve(), Path(".").re
 cache_path = root_dir / ".cache" / "paths"
 cache_path.mkdir(parents=True, exist_ok=True)
 
+zed_dataset_path = root_dir / "ZED_Dataset" 
+zed_dataset_path.mkdir(parents=True, exist_ok=True)
+
 
 def clean_one_plugin(config: Mapping[str, Any], plugin_config: Mapping[str, Any]) -> Path:
     profile = config["profile"]
@@ -92,7 +95,7 @@ def build_runtime(
 
 def load_native(config: Mapping[str, Any]) -> None:
     runtime_exe_path = build_runtime(config, "exe")
-    data_path = pathify(config["data"], root_dir, cache_path, True, True)
+    data_path = pathify(config["data"], root_dir, zed_dataset_path, True, True)
     demo_data_path = pathify(config["demo_data"], root_dir, cache_path, True, True)
     enable_offload_flag = config["enable_offload"]
     enable_alignment_flag = config["enable_alignment"]
@@ -152,7 +155,7 @@ def load_native(config: Mapping[str, Any]) -> None:
 
 def load_tests(config: Mapping[str, Any]) -> None:
     runtime_exe_path = build_runtime(config, "exe", test=True)
-    data_path = pathify(config["data"], root_dir, cache_path, True, True)
+    data_path = pathify(config["data"], root_dir, zed_dataset_path, True, True)
     demo_data_path = pathify(config["demo_data"], root_dir, cache_path, True, True)
     enable_offload_flag = config["enable_offload"]
     enable_alignment_flag = config["enable_alignment"]

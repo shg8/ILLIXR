@@ -1,17 +1,17 @@
 plugin_groups:
   - !include "rt_slam_plugins.yaml"
   - plugin_group:
-      - path: ground_truth_slam/
+     # - path: ground_truth_slam/
       - path: gldemo/
       - path: debugview/
       - path: offload_data/
   - !include "core_plugins.yaml"
 
-data:
-  subpath: mav0
-  relative_to:
-    archive_path:
-      download_url: 'http://robotics.ethz.ch/~asl-datasets/ijrr_euroc_mav_dataset/vicon_room1/V1_02_medium/V1_02_medium.zip'
+data: ZED_Dataset/
+  #subpath: mav0
+  #relative_to:
+    #archive_path:
+      #download_url: 'http://robotics.ethz.ch/~asl-datasets/ijrr_euroc_mav_dataset/vicon_room1/V1_02_medium/V1_02_medium.zip'
 demo_data: demo_data/
 
 enable_offload:   False

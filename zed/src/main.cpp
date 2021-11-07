@@ -21,6 +21,12 @@ const record_header __imu_cam_record {"imu_cam", {
     {"has_camera", typeid(bool)},
 }};
 
+const std::string path_right = "./ZED_Dataset/right_grayscale/";
+const std::string path_left = "./ZED_Dataset/left_grayscale/";
+const std::string path_depth = "./ZED_Dataset/depth/";
+const std::string path_imu = "./ZED_Dataset/imu/";
+const std::string path_rgb = "./ZED_Dataset/rgb/";
+
 struct cam_type : public switchboard::event {
 	cam_type(
 			 cv::Mat _img0,
@@ -38,8 +44,8 @@ struct cam_type : public switchboard::event {
 
     cv::Mat img0;
     cv::Mat img1;
-	cv::Mat rgb;
-	cv::Mat depth;
+    cv::Mat rgb;
+    cv::Mat depth;
     std::size_t serial_no;
 };
 
@@ -94,7 +100,7 @@ public:
 
 private:
     const std::shared_ptr<switchboard> sb;
-	switchboard::writer<cam_type> _m_cam_type;
+    switchboard::writer<cam_type> _m_cam_type;
     std::shared_ptr<Camera> zedm;
     Resolution image_size;
     RuntimeParameters runtime_parameters;
@@ -113,7 +119,7 @@ private:
 protected:
     virtual skip_option _p_should_skip() override {
         if (zedm->grab(runtime_parameters) == ERROR_CODE::SUCCESS) {
-            return skip_option::run;
+	    return skip_option::run;
         } else {
             return skip_option::skip_and_spin;
         }
@@ -121,18 +127,17 @@ protected:
 
     virtual void _p_one_iteration() override {
         RAC_ERRNO_MSG("zed at start of _p_one_iteration");
-
         // Retrieve images
         zedm->retrieveImage(imageL_zed, VIEW::LEFT_GRAY, MEM::CPU, image_size);
         zedm->retrieveImage(imageR_zed, VIEW::RIGHT_GRAY, MEM::CPU, image_size);
         zedm->retrieveMeasure(depth_zed, MEASURE::DEPTH, MEM::CPU, image_size);
         zedm->retrieveImage(rgb_zed, VIEW::LEFT, MEM::CPU, image_size);
-
-        _m_cam_type.put(_m_cam_type.allocate(
+	
+	_m_cam_type.put(_m_cam_type.allocate(
             // Make a copy, so that we don't have race
             cv::Mat{imageL_ocv},
             cv::Mat{imageR_ocv},
-			cv::Mat{rgb_ocv},
+	    cv::Mat{rgb_ocv},
             cv::Mat{depth_ocv},
             iteration_no
         ));
@@ -160,6 +165,18 @@ public:
         , it_log{record_logger_}
     {
         camera_thread_.start();
+
+	//create csv files for ecah cam types + imu
+	std::ofstream imu_dataset(path_imu + "data.csv");
+        imu_dataset << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],w_RS_S_z [rad s^-1],a_RS_S_x [m s^-2],a_RS_S_y [m s^-2],a_RS_S_z [m s^-2] \n";
+	std::ofstream right_dataset(path_right + "data.csv");
+        right_dataset << "#timestamp [ns],filename\n";
+	std::ofstream left_dataset(path_left + "data.csv");
+	left_dataset << "#timestamp [ns],filename\n";
+	std::ofstream depth_dataset(path_depth + "data.csv");
+	depth_dataset << "#timestamp [ns],filename\n";
+	std::ofstream rgb_dataset(path_rgb + "data.csv");
+	rgb_dataset << "#timestamp [ns],filename\n";
     }
 
     // destructor
@@ -180,35 +197,55 @@ protected:
 
     virtual void _p_one_iteration() override {
         RAC_ERRNO_MSG("zed at start of _p_one_iteration");
-
-        // std::cout << "IMU Rate: " << sensors_data.imu.effective_rate << "\n" << std::endl;
+	//std::cout << "IMU timeStamp: " << sensors_data.imu.timestamp.getMilliseconds() << std::endl;
+        //std::cout << "IMU Rate: " << sensors_data.imu.effective_rate << "\n" << std::endl;
 
         // Time as ullong (nanoseconds)
         imu_time = static_cast<ullong>(sensors_data.imu.timestamp.getNanoseconds());
-
         // Time as time_point
         using time_point = std::chrono::system_clock::time_point;
         time_type imu_time_point{std::chrono::duration_cast<time_point::duration>(std::chrono::nanoseconds(sensors_data.imu.timestamp.getNanoseconds()))};
 
         // Linear Acceleration and Angular Velocity (av converted from deg/s to rad/s)
         la = {sensors_data.imu.linear_acceleration_uncalibrated.x , sensors_data.imu.linear_acceleration_uncalibrated.y, sensors_data.imu.linear_acceleration_uncalibrated.z };
-        av = {sensors_data.imu.angular_velocity_uncalibrated.x  * (M_PI/180), sensors_data.imu.angular_velocity_uncalibrated.y * (M_PI/180), sensors_data.imu.angular_velocity_uncalibrated.z * (M_PI/180)};
-
+	av = {sensors_data.imu.angular_velocity_uncalibrated.x  * (M_PI/180), sensors_data.imu.angular_velocity_uncalibrated.y * (M_PI/180), sensors_data.imu.angular_velocity_uncalibrated.z * (M_PI/180)};
         std::optional<cv::Mat> img0 = std::nullopt;
         std::optional<cv::Mat> img1 = std::nullopt;
-		std::optional<cv::Mat> depth = std::nullopt;
-		std::optional<cv::Mat> rgb = std::nullopt;
+	std::optional<cv::Mat> depth = std::nullopt;
+	std::optional<cv::Mat> rgb = std::nullopt;
+        
+	std::ofstream imu_dataset; imu_dataset.open(path_imu + "data.csv", std::ios::app);
+	imu_dataset << imu_time << "," << av[0] << "," << av[1] << "," << av[2] << "," << la[0] << "," << la[1] <<  "," << la[2] << "\n";
 
-        switchboard::ptr<const cam_type> c = _m_cam_type.get_ro_nullable();
+	switchboard::ptr<const cam_type> c = _m_cam_type.get_ro_nullable();
         if (c && c->serial_no != last_serial_no) {
             last_serial_no = c->serial_no;
             img0 = c->img0;
             img1 = c->img1;
             depth = c->depth;
             rgb = c->rgb;
-        }
+	    
+	    //std::ofstream imu_dataset; imu_dataset.open(path_imu + "data.csv", std::ios::app);
+	    std::ofstream right_dataset; right_dataset.open(path_right + "data.csv", std::ios::app);
+	    std::ofstream left_dataset; left_dataset.open(path_left + "data.csv", std::ios::app);
+	    std::ofstream depth_dataset; depth_dataset.open(path_depth + "data.csv", std::ios::app);
+	    std::ofstream rgb_dataset; rgb_dataset.open(path_rgb + "data.csv", std::ios::app);
 
-        it_log.log(record{__imu_cam_record, {
+	    std::string imu_time_str = std::to_string(sensors_data.imu.timestamp.getNanoseconds()); 
+	    
+	    cv::imwrite(path_right + "data/" + imu_time_str + ".png", c->img0);
+	    right_dataset << imu_time_str << "," << imu_time_str << ".png" << "\n";
+            cv::imwrite(path_left + "data/" + imu_time_str + ".png", c->img1);
+	    left_dataset << imu_time_str << "," << imu_time_str << ".png" << "\n";
+	    cv::imwrite(path_depth + "data/"  + imu_time_str + ".png", c->depth);
+	    depth_dataset << imu_time_str << "," << imu_time_str << ".png" << "\n";
+	    cv::imwrite(path_rgb + "data/" + imu_time_str + ".png", c->rgb);
+	    rgb_dataset << imu_time_str << "," << imu_time_str << ".png" << "\n";
+	   
+	   // imu_dataset << imu_time_str << "," << av[0] << "," << av[1] << "," << av[2] << "," << la[0] << "," << la[1] <<  "," << la[2] << "\n";
+	}
+
+	it_log.log(record{__imu_cam_record, {
             {iteration_no},
             {bool(img0)},
         }});
@@ -231,7 +268,6 @@ protected:
         }
 
         last_imu_ts = sensors_data.imu.timestamp;
-
         RAC_ERRNO_MSG("zed_imu at end of _p_one_iteration");
     }
 
