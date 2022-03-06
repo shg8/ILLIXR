@@ -32,6 +32,7 @@ from yamlinclude import YamlIncludeConstructor
 # black -l 90 main.py
 # mypy --strict --ignore-missing-imports main.py
 
+ILLIXR_dir = Path(sys.path[0]).parent.parent.absolute()
 root_dir = relative_to((Path(__file__).parent / "../..").resolve(), Path(".").resolve())
 
 cache_path = root_dir / ".cache" / "paths"
@@ -110,7 +111,7 @@ def load_native(config: Mapping[str, Any]) -> None:
         ILLIXR_OFFLOAD_ENABLE=str(enable_offload_flag),
         ILLIXR_ALIGNMENT_ENABLE=str(enable_alignment_flag),
         ILLIXR_ENABLE_VERBOSE_ERRORS=str(config["enable_verbose_errors"]),
-        ILLIXR_RUN_DURATION=str(config["action"].get("ILLIXR_RUN_DURATION", 60)),
+        ILLIXR_RUN_DURATION=str(config["action"].get("ILLIXR_RUN_DURATION", 120)),
         ILLIXR_ENABLE_PRE_SLEEP=str(config["enable_pre_sleep"]),
         KIMERA_ROOT=config["action"]["kimera_path"],
         AUDIO_ROOT=config["action"]["audio_path"],
@@ -176,7 +177,7 @@ def load_tests(config: Mapping[str, Any]) -> None:
         env_override=dict(
             ILLIXR_DATA=str(data_path),
             ILLIXR_DEMO_DATA=str(demo_data_path),
-            ILLIXR_RUN_DURATION=str(config["action"].get("ILLIXR_RUN_DURATION", 10)),
+            ILLIXR_RUN_DURATION=str(config["action"].get("ILLIXR_RUN_DURATION", 120)),
             ILLIXR_OFFLOAD_ENABLE=str(enable_offload_flag),
             ILLIXR_ALIGNMENT_ENABLE=str(enable_alignment_flag),
             ILLIXR_ENABLE_VERBOSE_ERRORS=str(config["enable_verbose_errors"]),
@@ -223,7 +224,7 @@ def load_monado(config: Mapping[str, Any]) -> None:
         ILLIXR_DATA=str(data_path),
         ILLIXR_PATH=str(runtime_path / f"plugin.{profile}.so"),
         ILLIXR_COMP=plugin_paths_comp_arg,
-        XR_RUNTIME_JSON=str(monado_path / "build" / "openxr_monado-dev.json"),
+        XR_RUNTIME_JSON=str(ILLIXR_dir / monado_path / "build" / "openxr_monado-dev.json"),
     )
 
     ## For CMake
@@ -260,7 +261,8 @@ def load_monado(config: Mapping[str, Any]) -> None:
     else:
         ## Get the full path to the 'app' binary
         openxr_app_path     = None
-        openxr_app_bin_path = pathify(openxr_app_obj["app"], root_dir, cache_path, True, True)
+        openxr_app_bin_path = Path(openxr_app_obj["app"])
+        #pathify(openxr_app_obj["app"], root_dir, cache_path, True, True)
 
     ## Compile the OpenXR app if we received an 'app' with 'src_path'
     if openxr_app_path:
@@ -284,10 +286,12 @@ def load_monado(config: Mapping[str, Any]) -> None:
         env_monado_service: Mapping[str, str] = dict(**os.environ, **env_monado)
 
         ## Open the Monado service application in the background
-        monado_service_proc = subprocess.Popen([str(monado_target_path)], env=env_monado_service, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        monado_service_proc = subprocess.Popen([str(monado_target_path)], env=env_monado_service, stdin=PIPE)
 
     ## Give the Monado service some time to boot up and the user some time to initialize VIO
-    time.sleep(5)
+    print("|||||||||||||||||||||||||||START SLEEP---------------------------------")
+    #time.sleep(5)
+
 
     subprocess_run(
         [str(openxr_app_bin_path)],
