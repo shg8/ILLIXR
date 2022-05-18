@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData">
+    <serverData>
+      <paths name="Local Docker ILLIXR (9c4a873e-ffa7-49ce-a141-af2e9b982a6d)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/tmp.lQDf1gMgxr" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

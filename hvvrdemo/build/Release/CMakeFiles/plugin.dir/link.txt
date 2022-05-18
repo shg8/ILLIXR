@@ -1,0 +1,1 @@
+/usr/bin/g++-10 -fPIC -O2 -g -DNDEBUG -shared -Wl,-soname,libplugin.so -o libplugin.so CMakeFiles/plugin.dir/plugin.cpp.o   -L/usr/local/cuda/targets/x86_64-linux/lib  hvvr/samples_shared/libsamples_shared.a hvvr/raycaster_cmake/libraycaster.a /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libOpenGL.so -lcudadevrt -lcudart_static -lrt -lpthread -ldl 

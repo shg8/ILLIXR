@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsamples_shared.a CMakeFiles/samples_shared.dir/model_import.cpp.o CMakeFiles/samples_shared.dir/model_import_bin.cpp.o CMakeFiles/samples_shared.dir/model_import_fbx.cpp.o
+/usr/bin/ranlib libsamples_shared.a

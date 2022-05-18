@@ -1,0 +1,129 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"jsonFile" : "directory-.-RelWithDebInfo-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "hvvr",
+					"childIndexes" : 
+					[
+						2,
+						3
+					],
+					"jsonFile" : "directory-hvvr-RelWithDebInfo-10e5ebacfdefd430e162.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "hvvr"
+				},
+				{
+					"build" : "hvvr/raycaster_cmake",
+					"jsonFile" : "directory-hvvr.raycaster_cmake-RelWithDebInfo-00a298f05824cf25b541.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 0,
+					"source" : "hvvr/raycaster_cmake",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "hvvr/samples_shared",
+					"jsonFile" : "directory-hvvr.samples_shared-RelWithDebInfo-4ce6e3bc7591734e54cb.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 0,
+					"source" : "hvvr/samples_shared",
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"name" : "RelWithDebInfo",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					],
+					"name" : "hvvr_plugin",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "plugin::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-plugin-RelWithDebInfo-d990602a5b4adccca9a0.json",
+					"name" : "plugin",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "raycaster::@98483bb71c1bc41898d1",
+					"jsonFile" : "target-raycaster-RelWithDebInfo-6a738f43d54ddd25a751.json",
+					"name" : "raycaster",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "samples_shared::@45c88e439978b212936e",
+					"jsonFile" : "target-samples_shared-RelWithDebInfo-37f80c6bb950919d0bf7.json",
+					"name" : "samples_shared",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/tmp/tmp.WPXmMNOry1/cmake-build-docker",
+		"source" : "/tmp/tmp.WPXmMNOry1"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}
